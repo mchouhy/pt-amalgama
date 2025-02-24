@@ -30,10 +30,11 @@ interface LoginResponse {
 }
 
 function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     try {
@@ -42,6 +43,7 @@ function LoginForm() {
       const formData = new URLSearchParams();
       formData.append("email", email);
       formData.append("password", password);
+      console.log(formData.toString());
       const response = await fetch(
         "https://2v234d7xc7.execute-api.us-east-1.amazonaws.com/default/login",
         {
@@ -52,16 +54,16 @@ function LoginForm() {
           body: formData.toString(),
         }
       );
-      const data: LoginResponse = await response.json();
+      const data = (await response.json()) as LoginResponse;
       if (response.ok) {
         const token = data.token;
         document.cookie = `token=${token}; path=/; httpOnly; Secure; SameSite=Strict`;
         router.push(ROUTES.books);
-        console.log(data, token);
       }
     } catch (error) {
+      console.error(error);
       setLoading(false);
-      throw error;
+      setError("El usuario no existe o la contraseña es incorrecta");
     } finally {
       setLoading(false);
     }
@@ -78,6 +80,7 @@ function LoginForm() {
           onChange={(e) => {
             setEmail(e.target.value);
           }}
+          autoComplete="email"
           required
         />
       </div>
@@ -90,11 +93,13 @@ function LoginForm() {
           onChange={(e) => {
             setPassword(e.target.value);
           }}
+          autoComplete="current-password"
           minLength={6}
           required
         />
       </div>
       {loading ? <SpinnerButton /> : <Button>Entrar</Button>}
+      {error && <div className="text-red-500 text-sm text-center">{error}</div>}
     </form>
   );
 }
