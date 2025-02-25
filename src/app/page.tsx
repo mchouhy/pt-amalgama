@@ -1,5 +1,9 @@
-import LoginCard from "./login-card";
-
 export default function HomePage() {
-  return <LoginCard />;
+  return (
+    <>
+      <div className="flex flex-col justify-center items-center mx-auto h-screen">
+        HOME
+      </div>
+    </>
+  );
 }

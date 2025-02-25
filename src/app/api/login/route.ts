@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+
   if (!response.ok) {
     return NextResponse.json(
       { error: "Credenciales inválidas" },
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     );
   }
   const { token } = responseJson;
-  console.log("TOKENNN", token);
+
   const res = NextResponse.json({ success: true });
   res.cookies.set("token", token, {
     httpOnly: true,
