@@ -1,5 +1,5 @@
 import LoginCard from "./login-card";
 
-export default function Home() {
+export default function HomePage() {
   return <LoginCard />;
 }
