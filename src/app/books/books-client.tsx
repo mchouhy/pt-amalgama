@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Books } from "@/types/books-types";
+import Spinner from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -14,7 +14,7 @@ import {
 
 const BooksClient = () => {
   const [books, setBooks] = useState<Books[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,36 +30,45 @@ const BooksClient = () => {
         console.error(error);
         setError("Hubo un error al cargar los libros");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchBooks();
   }, []);
 
-  if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
 
   return (
-    <Table className="max-w-3xl mx-auto h-[30vh] border mt-5">
-      <TableCaption>Listado de libros disponibles.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">#ID</TableHead>
-          <TableHead>Título</TableHead>
-          <TableHead>Autor</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {books.map((books) => (
-          <TableRow key={books.id}>
-            <TableCell className="font-medium">{books.id}</TableCell>
-            <TableCell>{books.title}</TableCell>
-            <TableCell>{books.author.name}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="mt-40 flex flex-col gap-y-4">
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <>
+          <h1 className="font-bold text-black w-full flex justify-center">
+            Libros
+          </h1>
+          <Table className="max-w-3xl mx-auto border">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">#ID</TableHead>
+                <TableHead>Título</TableHead>
+                <TableHead>Autor</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {books.map((books) => (
+                <TableRow key={books.id}>
+                  <TableCell className="font-medium">{books.id}</TableCell>
+                  <TableCell>{books.title}</TableCell>
+                  <TableCell>{books.author.name}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
+    </div>
   );
 };
 

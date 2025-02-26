@@ -15,13 +15,15 @@ export default function LoginForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-  } = useForm<LoginFormFields>({ resolver: zodResolver(LoginFormSchema) });
+  } = useForm<LoginFormFields>({
+    resolver: zodResolver(LoginFormSchema),
+    mode: "onChange",
+  });
   const router = useRouter();
 
   const onSubmit: SubmitHandler<LoginFormFields> = async (loginFormData) => {
     try {
       const formData = new URLSearchParams();
-      console.log(formData, "FORM DATA SUBMIT");
       formData.append("email", loginFormData.email);
       formData.append("password", loginFormData.password);
       const response = await fetch("/api/login", {
@@ -29,14 +31,12 @@ export default function LoginForm() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData.toString(),
       });
-      console.log(response, "RESPONSE SUBMIT");
       if (!response.ok) {
         throw {
           status: response.status,
           message: response.statusText,
         };
       }
-
       router.push(ROUTES.books);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -67,7 +67,12 @@ export default function LoginForm() {
       <div className="flex flex-col gap-y-4">
         <div className="flex flex-col gap-y-2">
           <Label htmlFor="email">Correo electrónico</Label>
-          <Input type="email" {...register("email")} autoComplete="email" />
+          <Input
+            type="email"
+            {...register("email")}
+            autoComplete="email"
+            placeholder="Ingresa tu correo electrónico"
+          />
           {errors.email && (
             <span className="text-red-500 text-sm">{errors.email.message}</span>
           )}
@@ -78,6 +83,7 @@ export default function LoginForm() {
             {...register("password")}
             type="password"
             autoComplete="current-password"
+            placeholder="Ingresa tu contraseña"
           />
           {errors.password && (
             <span className="text-red-500 text-sm">

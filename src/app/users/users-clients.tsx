@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Users } from "@/types/user-types";
+import Spinner from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -14,7 +14,7 @@ import {
 
 const UsersClient = () => {
   const [users, setUsers] = useState<Users[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,43 +30,52 @@ const UsersClient = () => {
         console.error(error);
         setError("Hubo un error al cargar los usuarios");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchUsers();
   }, []);
 
-  if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
 
   return (
-    <Table className="max-w-3xl mx-auto h-[30vh] border mt-5">
-      <TableCaption>Listado de usuarios.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Email</TableHead>
-          <TableHead>Nickname</TableHead>
-          <TableHead>Libros Favoritos</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {users.map((user) => (
-          <TableRow key={user.email}>
-            <TableCell className="font-medium">{user.email}</TableCell>
-            <TableCell>{user.nickname}</TableCell>
-            <TableCell className="gap-x-2">
-              {user.favorite_books.map((books, index) => (
-                <span key={books.id}>
-                  {books.title} ({books.author.name})
-                  {index === user.favorite_books.length - 1 ? "." : "; "}
-                </span>
+    <div className="mt-40 flex flex-col gap-y-4">
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <>
+          <h1 className="font-bold text-black w-full flex justify-center ">
+            Usuarios
+          </h1>
+          <Table className="max-w-3xl mx-auto border">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Email</TableHead>
+                <TableHead>Nickname</TableHead>
+                <TableHead>Libros Favoritos</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.email}>
+                  <TableCell className="font-medium">{user.email}</TableCell>
+                  <TableCell>{user.nickname}</TableCell>
+                  <TableCell className="gap-x-2">
+                    {user.favorite_books.map((books, index) => (
+                      <span key={books.id}>
+                        {books.title} ({books.author.name})
+                        {index === user.favorite_books.length - 1 ? "." : "; "}
+                      </span>
+                    ))}
+                  </TableCell>
+                </TableRow>
               ))}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+            </TableBody>
+          </Table>
+        </>
+      )}
+    </div>
   );
 };
 
