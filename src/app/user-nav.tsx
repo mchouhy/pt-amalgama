@@ -34,7 +34,6 @@ export default function UserNav({ session }: UserNavProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => logout()}>
           Cerrar sesión
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
