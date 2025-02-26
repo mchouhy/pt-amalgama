@@ -50,6 +50,13 @@ export async function POST(req: Request) {
     path: "/",
     maxAge: 60 * 60 * 24,
   });
+  res.cookies.set("user-email", email, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 60 * 60 * 24,
+  });
 
   return res;
 }

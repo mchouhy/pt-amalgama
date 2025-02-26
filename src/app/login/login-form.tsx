@@ -38,6 +38,7 @@ export default function LoginForm() {
         };
       }
       router.push(ROUTES.books);
+      router.refresh();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === 401) {
