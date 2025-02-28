@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get("token")?.value;
   const pathname = request.nextUrl.pathname;
 
-  if (!session && ["/books", "/users"].includes(pathname)) {
+  if (!session && ["/books", "/users", "/authors"].includes(pathname)) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -17,5 +17,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/books", "/users", "/login"],
+  matcher: ["/books", "/users", "/login", "/authors"],
 };
