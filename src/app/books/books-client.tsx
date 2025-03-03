@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Books } from "@/types/books-types";
 import Spinner from "@/components/ui/spinner";
 import {
   Table,
@@ -11,21 +10,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useBookStore } from "@/books-store";
+import { Input } from "@/components/ui/input";
 
 const BooksClient = () => {
-  const [books, setBooks] = useState<Books[]>([]);
+  const { books, fetchBooks, updateBookTitle } = useBookStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editedTitles, setEditedTitles] = useState<{ [key: string]: string }>(
+    {}
+  );
+  const [focusedBook, setFocusedBook] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchBooks = async () => {
+    const loadBooks = async () => {
       try {
-        const response = await fetch("/api/books");
-        if (!response.ok) {
-          throw new Error("Error al obtener los libros");
-        }
-        const data = await response.json();
-        setBooks(data);
+        await fetchBooks();
       } catch (error) {
         console.error(error);
         setError("Hubo un error al cargar los libros");
@@ -33,11 +33,16 @@ const BooksClient = () => {
         setIsLoading(false);
       }
     };
-
-    fetchBooks();
-  }, []);
+    loadBooks();
+  }, [fetchBooks]);
 
   if (error) return <div>{error}</div>;
+
+  const handleOnBlur = () => {
+    setTimeout(() => {
+      setFocusedBook(null);
+    }, 1500);
+  };
 
   return (
     <div className="mt-40 flex flex-col gap-y-4">
@@ -57,11 +62,37 @@ const BooksClient = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {books.map((books) => (
-                <TableRow key={books.id}>
-                  <TableCell className="font-medium">{books.id}</TableCell>
-                  <TableCell>{books.title}</TableCell>
-                  <TableCell>{books.author.name}</TableCell>
+              {books.map((book) => (
+                <TableRow key={book.id}>
+                  <TableCell className="font-medium">{book.id}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="text"
+                      value={editedTitles[book.id] ?? book.title}
+                      onChange={(e) =>
+                        setEditedTitles({
+                          ...editedTitles,
+                          [book.id]: e.target.value,
+                        })
+                      }
+                      onFocus={() => setFocusedBook(book.id)}
+                      onBlur={handleOnBlur}
+                      className="border-none shadow-none p-1 cursor-text"
+                    ></Input>
+                  </TableCell>
+                  <TableCell>{book.author.name}</TableCell>
+                  <TableCell>
+                    {focusedBook === book.id ? (
+                      <button
+                        onClick={() => {
+                          updateBookTitle(book.id, editedTitles[book.id]);
+                        }}
+                        className="bg-blue-500 text-white px-3 py-1 rounded"
+                      >
+                        Guardar
+                      </button>
+                    ) : null}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

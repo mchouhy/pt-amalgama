@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Books } from "@/types/books-types";
-import { Author } from "@/types/books-types";
+import { Authors } from "@/types/books-types";
 import Spinner from "@/components/ui/spinner";
 import {
   Table,
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 
 const AuthorsClient = () => {
-  const [authors, setAuthors] = useState<Author[]>([]);
+  const [authors, setAuthors] = useState<Authors[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +28,7 @@ const AuthorsClient = () => {
         const data: Books[] = await response.json();
         const authors = data
           .map((books) => books.author)
-          .reduce((acc: Author[], author: Author) => {
+          .reduce((acc: Authors[], author: Authors) => {
             if (!acc.some((a) => a.name === author.name)) {
               acc.push(author);
             }
