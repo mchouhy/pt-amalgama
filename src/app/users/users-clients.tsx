@@ -11,10 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useBookStore } from "@/books-store";
 
 const UsersClient = () => {
-  const { books } = useBookStore();
   const [users, setUsers] = useState<Users[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
