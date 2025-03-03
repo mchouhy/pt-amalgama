@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Books } from "@/types/books-types";
+import { Input } from "@/components/ui/input";
 import { Authors } from "@/types/books-types";
 import Spinner from "@/components/ui/spinner";
 import {
@@ -12,29 +12,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useBookStore } from "@/books-store";
 
 const AuthorsClient = () => {
-  const [authors, setAuthors] = useState<Authors[]>([]);
+  const { books, fetchBooks, updateAuthorName } = useBookStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editedTitles, setEditedTitles] = useState<{ [key: string]: string }>(
+    {}
+  );
+  const [focusedAuthor, setFocusedAuthor] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchAuthors = async () => {
+    const loadAuthors = async () => {
       try {
-        const response = await fetch("/api/books");
-        if (!response.ok) {
-          throw new Error("Error al obtener los libros y sus autores");
-        }
-        const data: Books[] = await response.json();
-        const authors = data
-          .map((books) => books.author)
-          .reduce((acc: Authors[], author: Authors) => {
-            if (!acc.some((a) => a.name === author.name)) {
-              acc.push(author);
-            }
-            return acc;
-          }, []);
-        setAuthors(authors);
+        await fetchBooks();
       } catch (error) {
         console.error(error);
         setError("Hubo un error al cargar los autores");
@@ -43,10 +35,25 @@ const AuthorsClient = () => {
       }
     };
 
-    fetchAuthors();
-  }, []);
+    loadAuthors();
+  }, [books, fetchBooks]);
 
   if (error) return <div>{error}</div>;
+
+  const handleOnBlur = () => {
+    setTimeout(() => {
+      setFocusedAuthor(null);
+    }, 1500);
+  };
+
+  const reducedBooks = books
+    .map((books) => books.author)
+    .reduce((acc: Authors[], author: Authors) => {
+      if (!acc.some((a) => a.name === author.name)) {
+        acc.push(author);
+      }
+      return acc;
+    }, []);
 
   return (
     <div className="mt-40 flex flex-col gap-y-4">
@@ -65,10 +72,36 @@ const AuthorsClient = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {authors.map((author) => (
+              {reducedBooks.map((author) => (
                 <TableRow key={author.id}>
                   <TableCell className="font-medium">{author.id}</TableCell>
-                  <TableCell>{author.name}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="text"
+                      value={editedTitles[author.id] ?? author.name}
+                      onChange={(e) =>
+                        setEditedTitles({
+                          ...editedTitles,
+                          [author.id]: e.target.value,
+                        })
+                      }
+                      onFocus={() => setFocusedAuthor(author.id)}
+                      onBlur={handleOnBlur}
+                      className="border-none shadow-none p-1 cursor-text"
+                    ></Input>
+                  </TableCell>
+                  <TableCell>
+                    {focusedAuthor === author.id ? (
+                      <button
+                        onClick={() => {
+                          updateAuthorName(author.id, editedTitles[author.id]);
+                        }}
+                        className="bg-blue-500 text-white px-3 py-1 rounded"
+                      >
+                        Guardar
+                      </button>
+                    ) : null}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

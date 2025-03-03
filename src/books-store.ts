@@ -6,7 +6,7 @@ interface BookStoreState {
   books: Books[];
   fetchBooks: () => Promise<void>;
   updateBookTitle: (id: number, newTitle: string) => void;
-  updateAuthorTitle: (id: number, newName: string) => void;
+  updateAuthorName: (id: number, newName: string) => void;
 }
 
 export const useBookStore = create(
@@ -33,7 +33,7 @@ export const useBookStore = create(
             book.id === id ? { ...book, title: newTitle } : book
           ),
         })),
-      updateAuthorTitle: (id, newName) =>
+      updateAuthorName: (id, newName) =>
         set((state) => ({
           books: state.books.map((book) =>
             book.author.id === id
